@@ -14,20 +14,20 @@
 // - Non-malleability: Commitments cannot be modified without knowing the preimage
 //
 // CRYPTOGRAPHIC APPROACH:
-// - Uses Poseidon hash (optimized for ZK circuits, ~8x fewer constraints than Pedersen)
-// - Commitment = Poseidon(bid_amount, secret, bidder_address)
+// - Uses Pedersen hash (standard ZK-friendly hash function)
+// - Commitment = Pedersen(bid_amount, secret, bidder_address)
 // - Including bidder_address in hash prevents bid copying/replay attacks
 //
 // AUCTION WORKFLOW:
 // 1. Bidder generates: bid_amount, random secret
-// 2. Bidder computes: commitment = Poseidon(bid_amount, secret, bidder_address)
+// 2. Bidder computes: commitment = Pedersen(bid_amount, secret, bidder_address)
 // 3. Bidder publishes: commitment, bidder_address (public)
 // 4. At reveal time: Bidder generates proof with this circuit
 // 5. Auctioneer verifies: proof confirms bidder knows valid bid matching commitment
 //
 // ============================================================================
 
-use std::hash::poseidon2;
+use std::hash::pedersen_hash;
 
 // Maximum bid amount (prevents overflow attacks and ensures reasonable auction bounds)
 // Set to 2^32 - 1 for practical auction scenarios
@@ -44,7 +44,7 @@ global MIN_BID_AMOUNT: u64 = 1;
 /// - `secret`: Random nonce for commitment hiding property (prevents rainbow table attacks)
 ///
 /// # Public Inputs
-/// - `commitment`: Poseidon hash of (bid_amount, secret, bidder_address)
+/// - `commitment`: Pedersen hash of (bid_amount, secret, bidder_address)
 /// - `bidder_address`: Unique identifier for the bidder (prevents bid copying)
 ///
 /// # Constraints
@@ -81,19 +81,18 @@ fn main(
     assert(secret != 0, "Secret must be non-zero for commitment hiding");
 
     // ========================================================================
-    // STEP 3: Compute Commitment Using Poseidon Hash
+    // STEP 3: Compute Commitment Using Pedersen Hash
     // ========================================================================
-    // Poseidon is a ZK-friendly hash function optimized for constraint systems
-    // It requires significantly fewer constraints than traditional hashes:
-    // - Poseidon: ~150-300 constraints per hash (depending on parameters)
-    // - Pedersen: ~1500+ constraints per hash
+    // Pedersen is a ZK-friendly hash function for constraint systems
+    // Constraint counts for different hash functions:
+    // - Pedersen: ~1500 constraints per hash (used here)
     // - SHA256: ~25,000+ constraints per hash
     //
     // Hash inputs include bidder_address to prevent:
     // - Bid copying: Different bidders cannot reuse same commitment
     // - Replay attacks: Same bidder cannot reuse commitment across auctions
 
-    let computed_commitment = poseidon2::Poseidon2::hash([bid_amount as Field, secret, bidder_address], 3);
+    let computed_commitment = pedersen_hash([bid_amount as Field, secret, bidder_address]);
 
     // ========================================================================
     // STEP 4: Verify Commitment Matches
@@ -131,9 +130,9 @@ fn main(
 /// - `bidder_address`: Bidder's unique identifier
 ///
 /// # Returns
-/// The Poseidon hash commitment
+/// The Pedersen hash commitment
 pub fn generate_commitment(bid_amount: u64, secret: Field, bidder_address: Field) -> Field {
-    poseidon2::Poseidon2::hash([bid_amount as Field, secret, bidder_address], 3)
+    pedersen_hash([bid_amount as Field, secret, bidder_address])
 }
 
 // ============================================================================
