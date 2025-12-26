@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs
+dist/
+build/
+cache/
+artifacts/
+typechain-types/
+
+# Compiled circuit artifacts
+circuits/bid_proof/target/
+circuits/bid_proof/proofs/
+contracts/UltraVerifier.sol
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Deployment info
+deployments/*.json
+!deployments/.gitkeep
+
+# Frontend compiled circuit
+frontend-simple/circuit/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Testing
+coverage/
+coverage.json
+
+# Hardhat
+cache/
+artifacts/
+
+# Misc
+*.tgz
+.npm
+.eslintcache

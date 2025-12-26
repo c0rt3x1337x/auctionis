@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZK Sealed-Bid Auction</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ZK Sealed-Bid Auction</h1>
+            <div id="wallet-info">
+                <button id="connect-wallet">Connect Wallet</button>
+                <div id="account-info" style="display: none;">
+                    <span id="account-address"></span>
+                    <button id="disconnect-wallet">Disconnect</button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <!-- Auction Info Section -->
+            <section id="auction-info" class="card">
+                <h2>Auction Information</h2>
+                <div id="auction-status">
+                    <p><strong>Status:</strong> <span id="phase">Not Started</span></p>
+                    <p><strong>Commit Deadline:</strong> <span id="commit-deadline">-</span></p>
+                    <p><strong>Reveal Deadline:</strong> <span id="reveal-deadline">-</span></p>
+                    <p><strong>Minimum Deposit:</strong> <span id="min-deposit">-</span> ETH</p>
+                </div>
+                <div id="auction-results" style="display: none;">
+                    <p><strong>Highest Bid:</strong> <span id="highest-bid">-</span></p>
+                    <p><strong>Highest Bidder:</strong> <span id="highest-bidder">-</span></p>
+                </div>
+            </section>
+
+            <!-- Navigation -->
+            <nav class="tabs">
+                <button class="tab active" data-tab="commit">Commit Bid</button>
+                <button class="tab" data-tab="reveal">Reveal Bid</button>
+                <button class="tab" data-tab="dashboard">Dashboard</button>
+            </nav>
+
+            <!-- Commit Bid Tab -->
+            <section id="commit-tab" class="tab-content active card">
+                <h2>Submit Bid Commitment</h2>
+                <p class="info">Enter your bid amount. A cryptographic commitment will be created with zero-knowledge proof.</p>
+
+                <form id="commit-form">
+                    <div class="form-group">
+                        <label for="bid-amount">Bid Amount (wei):</label>
+                        <input type="number" id="bid-amount" min="1" max="4294967295" required>
+                        <small>Min: 1, Max: 4,294,967,295</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deposit-amount">Deposit Amount (ETH):</label>
+                        <input type="number" id="deposit-amount" step="0.001" min="0.01" required>
+                        <small>Minimum deposit required to participate</small>
+                    </div>
+
+                    <div id="proof-status" style="display: none;">
+                        <p class="status">Generating ZK proof...</p>
+                        <div class="loader"></div>
+                    </div>
+
+                    <button type="submit" id="commit-btn">Generate Proof & Submit Bid</button>
+                </form>
+
+                <div id="commit-result" style="display: none;" class="result">
+                    <h3>Commitment Submitted!</h3>
+                    <p><strong>Transaction:</strong> <span id="commit-tx"></span></p>
+                    <p class="warning">⚠️ Remember your bid amount and secret! You'll need them to reveal your bid.</p>
+                    <p>Your bid details have been saved locally.</p>
+                </div>
+            </section>
+
+            <!-- Reveal Bid Tab -->
+            <section id="reveal-tab" class="tab-content card" style="display: none;">
+                <h2>Reveal Your Bid</h2>
+                <p class="info">The commit phase has ended. Now reveal your bid to participate in the auction.</p>
+
+                <div id="saved-bid-info" style="display: none;">
+                    <h3>Your Saved Bid:</h3>
+                    <p><strong>Bid Amount:</strong> <span id="saved-amount"></span> wei</p>
+                    <p><strong>Commitment:</strong> <span id="saved-commitment"></span></p>
+                    <button id="reveal-btn" class="primary">Reveal This Bid</button>
+                </div>
+
+                <div id="no-saved-bid" style="display: none;">
+                    <p class="warning">No saved bid found. You may not have submitted a bid in the commit phase.</p>
+                </div>
+
+                <div id="reveal-status" style="display: none;">
+                    <p class="status">Generating reveal proof...</p>
+                    <div class="loader"></div>
+                </div>
+
+                <div id="reveal-result" style="display: none;" class="result">
+                    <h3>Bid Revealed!</h3>
+                    <p><strong>Transaction:</strong> <span id="reveal-tx"></span></p>
+                    <p>Your bid has been revealed and verified.</p>
+                </div>
+            </section>
+
+            <!-- Dashboard Tab -->
+            <section id="dashboard-tab" class="tab-content card" style="display: none;">
+                <h2>Auction Dashboard</h2>
+
+                <div id="all-bids">
+                    <h3>All Commitments</h3>
+                    <div id="commitments-list">
+                        <p class="info">No commitments yet.</p>
+                    </div>
+                </div>
+
+                <div id="revealed-bids" style="display: none;">
+                    <h3>Revealed Bids</h3>
+                    <div id="reveals-list">
+                        <p class="info">No bids revealed yet.</p>
+                    </div>
+                </div>
+
+                <button id="refresh-dashboard">Refresh Dashboard</button>
+            </section>
+        </main>
+
+        <footer>
+            <p>Zero-Knowledge Sealed-Bid Auction | Powered by Noir</p>
+        </footer>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

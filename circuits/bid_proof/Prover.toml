@@ -1,0 +1,151 @@
+# ============================================================================
+# Prover Inputs for Sealed-Bid Auction Bid Proof Circuit
+# ============================================================================
+#
+# This file contains example inputs for generating a zero-knowledge proof
+# that demonstrates knowledge of a bid without revealing the bid amount.
+#
+# In a production auction system:
+# 1. The bidder generates these values locally (never shares bid_amount/secret)
+# 2. The bidder computes the commitment: Poseidon(bid_amount, secret, bidder_address)
+# 3. The bidder publishes the commitment and bidder_address (public)
+# 4. At reveal time, the bidder uses this data to generate a proof
+# 5. The auctioneer verifies the proof without learning the bid amount
+#
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# PRIVATE INPUTS (Witnesses - Never revealed to verifier)
+# ----------------------------------------------------------------------------
+
+# The bid amount in auction units (e.g., wei, cents, tokens)
+# This is the secret value the bidder wants to keep private
+# Must be: 1 <= bid_amount <= 4294967295 (2^32 - 1)
+bid_amount = "1000000"
+
+# Random nonce used for commitment hiding property
+# This ensures that identical bids from different bidders have different commitments
+# Must be non-zero to maintain cryptographic security
+# Recommendation: Use a cryptographically secure random number generator
+# Example: crypto.randomBytes(32) in JavaScript, secrets.randbelow() in Python
+secret = "123456789012345"
+
+# ----------------------------------------------------------------------------
+# PUBLIC INPUTS (Visible to verifier and on-chain)
+# ----------------------------------------------------------------------------
+
+# Poseidon hash commitment: H(bid_amount, secret, bidder_address)
+# This value is computed from the private inputs and published before bidding closes
+# The circuit verifies that the prover knows the preimage of this commitment
+#
+# FOR THIS EXAMPLE (bid_amount=1000000, secret=123456789012345, bidder_address=0xdeadbeef):
+# The commitment is calculated using: poseidon::bn254::hash_3([1000000, 123456789012345, 3735928559])
+#
+# To calculate this value:
+# 1. Run: nargo test --show-output
+# 2. Or use the generate_commitment helper function in the circuit
+# 3. Or use a Poseidon hash implementation in your preferred language
+#
+# NOTE: This is a placeholder value. When running tests, the circuit will compute
+# the correct commitment. For production use, compute this value using the
+# generate_commitment function or equivalent off-chain implementation.
+commitment = "0x0eb8f5c201cd501ddfd05bd02f4455e9ca5a35f0e6c6a0eac82dea4c98e1f2e3"
+
+# The bidder's unique identifier (e.g., Ethereum address, public key hash)
+# This binds the commitment to a specific bidder, preventing:
+# - Bid copying: Other bidders cannot reuse this commitment
+# - Replay attacks: Same bidder cannot reuse commitment across different auctions
+#
+# For Ethereum addresses: Use the address as a Field element
+# Example: 0xdeadbeef = 3735928559 in decimal
+bidder_address = "0x00000000000000000000000000000000deadbeef"
+
+# ============================================================================
+# PRODUCTION USAGE EXAMPLE (JavaScript/TypeScript with NoirJS)
+# ============================================================================
+#
+# import { Noir } from '@noir-lang/noir_js';
+# import { BarretenbergBackend } from '@noir-lang/backend_barretenberg';
+# import { compile } from '@noir-lang/noir_wasm';
+# import { poseidon } from 'circomlibjs'; // or equivalent Poseidon implementation
+#
+# async function generateBidProof(bidAmount: bigint, secret: bigint, bidderAddress: string) {
+#   // 1. Compute commitment (off-chain, before auction starts)
+#   const commitment = poseidon([bidAmount, secret, BigInt(bidderAddress)]);
+#
+#   // 2. Publish commitment to auction contract (on-chain)
+#   await auctionContract.submitCommitment(commitment, bidderAddress);
+#
+#   // 3. After bidding closes, generate proof (off-chain)
+#   const inputs = {
+#     bid_amount: bidAmount.toString(),
+#     secret: secret.toString(),
+#     commitment: commitment.toString(),
+#     bidder_address: bidderAddress
+#   };
+#
+#   const backend = new BarretenbergBackend(compiledCircuit);
+#   const noir = new Noir(compiledCircuit, backend);
+#   const proof = await noir.generateProof(inputs);
+#
+#   // 4. Submit proof for verification (on-chain or off-chain)
+#   await auctionContract.revealBid(proof.proof, proof.publicInputs);
+# }
+#
+# ============================================================================
+
+# ============================================================================
+# SECURITY CONSIDERATIONS
+# ============================================================================
+#
+# 1. SECRET GENERATION:
+#    - MUST use cryptographically secure random number generator
+#    - NEVER reuse secrets across different bids or auctions
+#    - Store secret securely until reveal phase
+#
+# 2. COMMITMENT PUBLICATION:
+#    - Publish commitment BEFORE auction deadline
+#    - Ensure commitment is timestamped (prevents late bids)
+#    - Store commitment transaction hash as proof of submission time
+#
+# 3. BID AMOUNT PRIVACY:
+#    - NEVER log or transmit bid_amount in plaintext
+#    - Use secure channels for proof generation
+#    - Clear sensitive data from memory after proof generation
+#
+# 4. BIDDER ADDRESS BINDING:
+#    - Use authenticated address (e.g., message signing)
+#    - Prevent address front-running during commitment phase
+#    - Validate bidder_address matches transaction sender
+#
+# 5. PROOF VERIFICATION:
+#    - Verify proof on-chain or in trusted environment
+#    - Check that commitment was submitted before deadline
+#    - Ensure one proof per commitment (prevent double-reveal)
+#
+# ============================================================================
+
+# ============================================================================
+# TESTING AND VALIDATION
+# ============================================================================
+#
+# To test this configuration:
+#
+# 1. Compile the circuit:
+#    nargo compile
+#
+# 2. Run all tests (recommended first):
+#    nargo test
+#
+# 3. Generate proof with these inputs:
+#    nargo prove
+#
+# 4. Verify the generated proof:
+#    nargo verify
+#
+# Expected behavior:
+# - All tests should pass
+# - Proof generation should complete in <1 second
+# - Verification should succeed
+#
+# ============================================================================

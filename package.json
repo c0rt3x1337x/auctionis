@@ -1,0 +1,54 @@
+{
+  "name": "zk-sealed-auction",
+  "version": "1.0.0",
+  "description": "Zero-Knowledge Sealed-Bid Auction System using Noir and Ethereum",
+  "main": "index.js",
+  "scripts": {
+    "compile:circuits": "cd circuits/bid_proof && nargo compile",
+    "generate:verifier": "cd circuits/bid_proof && nargo codegen-verifier",
+    "compile:contracts": "hardhat compile",
+    "test": "hardhat test",
+    "test:circuits": "cd circuits/bid_proof && nargo test",
+    "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
+    "deploy:testnet": "hardhat run scripts/deploy.ts --network sepolia",
+    "demo": "hardhat run scripts/demo.ts",
+    "node": "hardhat node",
+    "clean": "hardhat clean && cd circuits/bid_proof && nargo clean",
+    "frontend:dev": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build",
+    "frontend:install": "cd frontend && npm install"
+  },
+  "keywords": [
+    "zero-knowledge",
+    "auction",
+    "noir",
+    "ethereum",
+    "zk-snark",
+    "blockchain"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.5",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.5",
+    "chai": "^4.4.1",
+    "hardhat": "^2.19.5",
+    "hardhat-gas-reporter": "^1.0.10",
+    "solidity-coverage": "^0.8.5",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@noir-lang/backend_barretenberg": "^0.36.0",
+    "@noir-lang/noir_js": "^0.36.0",
+    "@noir-lang/types": "^0.36.0",
+    "ethers": "^6.10.0",
+    "dotenv": "^16.4.1"
+  }
+}
