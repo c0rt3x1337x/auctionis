@@ -22,7 +22,7 @@ async function main() {
 
   // Configuration
   const beneficiary = deployer.address; // Winner's payment goes to deployer
-  const minimumDeposit = hre.ethers.parseEther("0.01"); // 0.01 ETH minimum deposit
+  const minimumDeposit = hre.ethers.parseEther("0.001"); // 0.001 ETH minimum deposit (very low for testing)
   const commitDuration = 300; // 5 minutes for commit phase
   const revealDuration = 300; // 5 minutes for reveal phase
 
