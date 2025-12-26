@@ -35,26 +35,8 @@ nargo test
 echo "✓ All tests passed"
 echo ""
 
-# Step 3: Generate verifier contract
-echo "Step 3: Generating Solidity verifier..."
-nargo codegen-verifier
-echo "✓ Verifier contract generated"
-echo ""
-
-# Step 4: Copy verifier to contracts directory
-if [ -f "contract/bid_proof/plonk_vk.sol" ]; then
-    echo "Step 4: Copying verifier to contracts directory..."
-    cp contract/bid_proof/plonk_vk.sol ../../contracts/UltraVerifier.sol
-    echo "✓ Verifier copied to contracts/UltraVerifier.sol"
-else
-    echo "Warning: Verifier contract not found at expected location"
-    echo "Looking for alternative paths..."
-    find contract -name "*.sol" -type f
-fi
-echo ""
-
-# Step 5: Copy circuit artifacts to frontend
-echo "Step 5: Copying circuit artifacts to frontend..."
+# Step 3: Copy circuit artifacts to frontend
+echo "Step 3: Copying circuit artifacts to frontend..."
 
 # Create frontend circuit directory if it doesn't exist
 mkdir -p ../../frontend-simple/circuit
@@ -70,6 +52,9 @@ fi
 
 echo ""
 echo "=== Compilation Complete ==="
+echo ""
+echo "Note: Noir 1.0+ no longer generates Solidity verifiers automatically."
+echo "For this MVP, we'll use the contracts with the existing Verifier.sol"
 echo ""
 echo "Next steps:"
 echo "  1. Deploy contracts: npm run deploy:local"
