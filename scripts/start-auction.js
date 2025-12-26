@@ -25,37 +25,22 @@ async function main() {
 
   // Check current phase
   const currentPhase = await auction.currentPhase();
-  console.log("Current Phase:", currentPhase);
-
-  if (currentPhase !== 0n) {
-    console.log("Auction already started!");
-
-    const commitDeadline = await auction.commitDeadline();
-    const revealDeadline = await auction.revealDeadline();
-
-    console.log("\nAuction Timeline:");
-    console.log("  Commit Deadline:", new Date(Number(commitDeadline) * 1000).toLocaleString());
-    console.log("  Reveal Deadline:", new Date(Number(revealDeadline) * 1000).toLocaleString());
-
-    return;
-  }
-
-  // Start the auction
-  console.log("Starting auction...");
-  const tx = await auction.startAuction();
-  await tx.wait();
-
-  console.log("✓ Auction started!\n");
+  const phases = ['COMMIT', 'REVEAL', 'FINALIZED'];
+  console.log("Current Phase:", phases[Number(currentPhase)]);
 
   // Get auction info
   const commitDeadline = await auction.commitDeadline();
   const revealDeadline = await auction.revealDeadline();
+  const minimumDeposit = await auction.minimumDeposit();
 
+  console.log("\n✓ Auction is Active!\n");
   console.log("Auction Timeline:");
-  console.log("  Started:", new Date().toLocaleString());
   console.log("  Commit Deadline:", new Date(Number(commitDeadline) * 1000).toLocaleString());
   console.log("  Reveal Deadline:", new Date(Number(revealDeadline) * 1000).toLocaleString());
-  console.log("\nAuction is now open for bids!");
+  console.log("\nAuction Configuration:");
+  console.log("  Minimum Deposit:", hre.ethers.formatEther(minimumDeposit), "ETH");
+  console.log("\nThe auction automatically started when deployed!");
+  console.log("You can now submit bids through the frontend.");
 }
 
 main()

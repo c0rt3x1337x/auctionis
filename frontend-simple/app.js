@@ -1,7 +1,7 @@
 // Contract addresses - UPDATE THESE after deployment
 const CONTRACT_ADDRESSES = {
-    auction: '0x0000000000000000000000000000000000000000', // Update after deployment
-    verifier: '0x0000000000000000000000000000000000000000' // Update after deployment
+    auction: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9', // Update after deployment
+    verifier: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0' // Update after deployment
 };
 
 // Contract ABIs (minimal versions)
@@ -12,7 +12,7 @@ const AUCTION_ABI = [
     "function minimumDeposit() view returns (uint256)",
     "function highestBid() view returns (uint256)",
     "function highestBidder() view returns (address)",
-    "function submitCommitment(bytes32 commitment, bytes proof) payable",
+    "function commitBid(bytes32 commitment) payable",
     "function revealBid(uint256 bidAmount, uint256 secret, bytes proof)",
     "function getCommitment(address bidder) view returns (bytes32, uint256, bool, uint256)",
     "event CommitmentSubmitted(address indexed bidder, bytes32 commitment, uint256 deposit)",
@@ -77,11 +77,17 @@ async function connectWallet() {
         // Initialize contract
         auctionContract = new ethers.Contract(CONTRACT_ADDRESSES.auction, AUCTION_ABI, signer);
 
+        // Get balance
+        const balance = await provider.getBalance(userAddress);
+        const balanceInEth = ethers.utils.formatEther(balance);
+
         // Update UI
         document.getElementById('connect-wallet').style.display = 'none';
         document.getElementById('account-info').style.display = 'flex';
         document.getElementById('account-address').textContent =
             userAddress.substring(0, 6) + '...' + userAddress.substring(38);
+        document.getElementById('account-balance').textContent =
+            'Balance: ' + parseFloat(balanceInEth).toFixed(4) + ' ETH';
 
         // Load auction info
         await loadAuctionInfo();
@@ -215,9 +221,8 @@ async function handleCommitBid(e) {
         );
 
         // Submit to contract
-        const tx = await auctionContract.submitCommitment(
+        const tx = await auctionContract.commitBid(
             commitment,
-            proof,
             { value: ethers.utils.parseEther(depositAmount) }
         );
 

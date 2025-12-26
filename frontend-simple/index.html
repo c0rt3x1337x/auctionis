@@ -13,7 +13,10 @@
             <div id="wallet-info">
                 <button id="connect-wallet">Connect Wallet</button>
                 <div id="account-info" style="display: none;">
-                    <span id="account-address"></span>
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <span id="account-address"></span>
+                        <span id="account-balance" style="font-size: 0.9em; color: #666;">Balance: -- ETH</span>
+                    </div>
                     <button id="disconnect-wallet">Disconnect</button>
                 </div>
             </div>

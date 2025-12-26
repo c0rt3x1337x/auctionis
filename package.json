@@ -9,7 +9,7 @@
     "compile:contracts": "hardhat compile",
     "test": "hardhat test",
     "test:circuits": "cd circuits/bid_proof && nargo test",
-    "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
+    "deploy:local": "hardhat run scripts/deploy-simple.js --network localhost",
     "deploy:testnet": "hardhat run scripts/deploy.ts --network sepolia",
     "demo": "hardhat run scripts/demo.ts",
     "node": "hardhat node",
@@ -29,8 +29,9 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "@nomicfoundation/hardhat-ethers": "^3.0.5",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@openzeppelin/contracts": "^5.4.0",
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.3.11",
@@ -48,7 +49,7 @@
     "@noir-lang/backend_barretenberg": "^0.36.0",
     "@noir-lang/noir_js": "^0.36.0",
     "@noir-lang/types": "^0.36.0",
-    "ethers": "^6.10.0",
-    "dotenv": "^16.4.1"
+    "dotenv": "^16.4.1",
+    "ethers": "^6.10.0"
   }
 }
