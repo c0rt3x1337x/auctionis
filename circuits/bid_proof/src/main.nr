@@ -27,7 +27,7 @@
 //
 // ============================================================================
 
-use std::hash::poseidon2::Poseidon2::hash;
+use std::hash::poseidon2;
 
 // Maximum bid amount (prevents overflow attacks and ensures reasonable auction bounds)
 // Set to 2^32 - 1 for practical auction scenarios
@@ -93,7 +93,7 @@ fn main(
     // - Bid copying: Different bidders cannot reuse same commitment
     // - Replay attacks: Same bidder cannot reuse commitment across auctions
 
-    let computed_commitment = hash([bid_amount as Field, secret, bidder_address]);
+    let computed_commitment = poseidon2::Poseidon2::hash([bid_amount as Field, secret, bidder_address], 3);
 
     // ========================================================================
     // STEP 4: Verify Commitment Matches
@@ -133,7 +133,7 @@ fn main(
 /// # Returns
 /// The Poseidon hash commitment
 pub fn generate_commitment(bid_amount: u64, secret: Field, bidder_address: Field) -> Field {
-    hash([bid_amount as Field, secret, bidder_address])
+    poseidon2::Poseidon2::hash([bid_amount as Field, secret, bidder_address], 3)
 }
 
 // ============================================================================
