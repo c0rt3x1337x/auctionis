@@ -27,15 +27,15 @@
 //
 // ============================================================================
 
-use std::hash::poseidon;
+use std::hash::poseidon2::Poseidon2::hash;
 
 // Maximum bid amount (prevents overflow attacks and ensures reasonable auction bounds)
 // Set to 2^32 - 1 for practical auction scenarios
 // This can be adjusted based on the specific auction requirements
-global MAX_BID_AMOUNT: Field = 4294967295; // 2^32 - 1
+global MAX_BID_AMOUNT: u64 = 4294967295; // 2^32 - 1
 
 // Minimum bid amount (prevents zero or negative bids)
-global MIN_BID_AMOUNT: Field = 1;
+global MIN_BID_AMOUNT: u64 = 1;
 
 /// Main circuit proving knowledge of a valid bid
 ///
@@ -54,7 +54,7 @@ global MIN_BID_AMOUNT: Field = 1;
 /// 3. Non-zero secret: Ensures commitment randomness
 fn main(
     // Private inputs (hidden from verifier - these are the witnesses)
-    bid_amount: Field,
+    bid_amount: u64,
     secret: Field,
 
     // Public inputs (visible to verifier and on-chain)
@@ -93,7 +93,7 @@ fn main(
     // - Bid copying: Different bidders cannot reuse same commitment
     // - Replay attacks: Same bidder cannot reuse commitment across auctions
 
-    let computed_commitment = poseidon::bn254::hash_3([bid_amount, secret, bidder_address]);
+    let computed_commitment = hash([bid_amount as Field, secret, bidder_address]);
 
     // ========================================================================
     // STEP 4: Verify Commitment Matches
@@ -132,8 +132,8 @@ fn main(
 ///
 /// # Returns
 /// The Poseidon hash commitment
-pub fn generate_commitment(bid_amount: Field, secret: Field, bidder_address: Field) -> Field {
-    poseidon::bn254::hash_3([bid_amount, secret, bidder_address])
+pub fn generate_commitment(bid_amount: u64, secret: Field, bidder_address: Field) -> Field {
+    hash([bid_amount as Field, secret, bidder_address])
 }
 
 // ============================================================================
