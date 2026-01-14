@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZK Sealed-Bid Auction</title>
+    <title>ZK Auction - Multi Item</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>ZK Sealed-Bid Auction</h1>
+            <h1>🔒 ZK Multi-Item Auction</h1>
             <div id="wallet-info">
                 <button id="connect-wallet">Connect Wallet</button>
                 <div id="account-info" style="display: none;">
@@ -23,34 +23,41 @@
         </header>
 
         <main>
-            <!-- Auction Info Section -->
-            <section id="auction-info" class="card">
-                <h2>Auction Information</h2>
-                <div id="auction-status">
-                    <p><strong>Status:</strong> <span id="phase">Not Started</span></p>
-                    <p><strong>Commit Deadline:</strong> <span id="commit-deadline">-</span></p>
-                    <p><strong>Reveal Deadline:</strong> <span id="reveal-deadline">-</span></p>
-                    <p><strong>Minimum Deposit:</strong> <span id="min-deposit">-</span> ETH</p>
-                </div>
-                <div id="auction-results" style="display: none;">
-                    <p><strong>Highest Bid:</strong> <span id="highest-bid">-</span></p>
-                    <p><strong>Highest Bidder:</strong> <span id="highest-bidder">-</span></p>
+            <!-- Navigation -->
+            <nav class="tabs">
+                <button class="tab active" data-tab="items">Browse Items</button>
+                <button class="tab" data-tab="add">Add Item</button>
+                <button class="tab" data-tab="myitems">My Items</button>
+                <button class="tab" data-tab="commit">Place Bid</button>
+                <button class="tab" data-tab="reveal">Reveal Bid</button>
+            </nav>
+
+            <!-- Items List Tab -->
+            <section id="items-tab" class="tab-content active card">
+                <h2>Active Auction Items</h2>
+                <div id="items-list">
+                    <p class="info">Loading auction items...</p>
                 </div>
             </section>
 
-            <!-- Navigation -->
-            <nav class="tabs">
-                <button class="tab active" data-tab="commit">Commit Bid</button>
-                <button class="tab" data-tab="reveal">Reveal Bid</button>
-                <button class="tab" data-tab="dashboard">Dashboard</button>
-            </nav>
-
             <!-- Commit Bid Tab -->
-            <section id="commit-tab" class="tab-content active card">
-                <h2>Submit Bid Commitment</h2>
-                <p class="info">Enter your bid amount. A cryptographic commitment will be created with zero-knowledge proof.</p>
+            <section id="commit-tab" class="tab-content card" style="display: none;">
+                <h2>Place Your Bid</h2>
 
-                <form id="commit-form">
+                <div id="selected-item-info" style="display: none;">
+                    <h3>Selected Item</h3>
+                    <p><strong>Name:</strong> <span id="selected-item-name"></span></p>
+                    <p><strong>Description:</strong> <span id="selected-item-desc"></span></p>
+                    <p><strong>Phase:</strong> <span id="selected-item-phase"></span></p>
+                    <p><strong>Min Deposit:</strong> <span id="selected-item-deposit"></span> ETH</p>
+                    <p><strong>Commit Deadline:</strong> <span id="selected-item-commit-deadline"></span></p>
+                </div>
+
+                <div id="no-item-selected">
+                    <p class="warning">Please select an item from the "Auction Items" tab first.</p>
+                </div>
+
+                <form id="commit-form" style="display: none;">
                     <div class="form-group">
                         <label for="bid-amount">Bid Amount (wei):</label>
                         <input type="number" id="bid-amount" min="1" max="4294967295" required>
@@ -59,8 +66,7 @@
 
                     <div class="form-group">
                         <label for="deposit-amount">Deposit Amount (ETH):</label>
-                        <input type="number" id="deposit-amount" step="0.001" min="0.01" required>
-                        <small>Minimum deposit required to participate</small>
+                        <input type="number" id="deposit-amount" step="0.001" min="0.001" required>
                     </div>
 
                     <div id="proof-status" style="display: none;">
@@ -72,17 +78,25 @@
                 </form>
 
                 <div id="commit-result" style="display: none;" class="result">
-                    <h3>Commitment Submitted!</h3>
+                    <h3>✅ Commitment Submitted!</h3>
                     <p><strong>Transaction:</strong> <span id="commit-tx"></span></p>
-                    <p class="warning">⚠️ Remember your bid amount and secret! You'll need them to reveal your bid.</p>
-                    <p>Your bid details have been saved locally.</p>
+                    <p class="warning">Your bid details have been saved locally.</p>
                 </div>
             </section>
 
             <!-- Reveal Bid Tab -->
             <section id="reveal-tab" class="tab-content card" style="display: none;">
                 <h2>Reveal Your Bid</h2>
-                <p class="info">The commit phase has ended. Now reveal your bid to participate in the auction.</p>
+                <p class="info">Select an item and reveal your previously committed bid.</p>
+
+                <div id="reveal-item-selector">
+                    <div class="form-group">
+                        <label for="reveal-item-id">Select Item:</label>
+                        <select id="reveal-item-id">
+                            <option value="">-- Select Item --</option>
+                        </select>
+                    </div>
+                </div>
 
                 <div id="saved-bid-info" style="display: none;">
                     <h3>Your Saved Bid:</h3>
@@ -92,7 +106,7 @@
                 </div>
 
                 <div id="no-saved-bid" style="display: none;">
-                    <p class="warning">No saved bid found. You may not have submitted a bid in the commit phase.</p>
+                    <p class="warning">No saved bid found for this item.</p>
                 </div>
 
                 <div id="reveal-status" style="display: none;">
@@ -101,36 +115,81 @@
                 </div>
 
                 <div id="reveal-result" style="display: none;" class="result">
-                    <h3>Bid Revealed!</h3>
+                    <h3>✅ Bid Revealed!</h3>
                     <p><strong>Transaction:</strong> <span id="reveal-tx"></span></p>
-                    <p>Your bid has been revealed and verified.</p>
                 </div>
             </section>
 
-            <!-- Dashboard Tab -->
-            <section id="dashboard-tab" class="tab-content card" style="display: none;">
-                <h2>Auction Dashboard</h2>
+            <!-- My Items Tab -->
+            <section id="myitems-tab" class="tab-content card" style="display: none;">
+                <h2>My Auction Items</h2>
+                <p class="info">Manage auctions you created. Advance phases and finalize to declare winners.</p>
+                <div id="my-items-list">
+                    <p class="info">Loading your items...</p>
+                </div>
+            </section>
 
-                <div id="all-bids">
-                    <h3>All Commitments</h3>
-                    <div id="commitments-list">
-                        <p class="info">No commitments yet.</p>
+            <!-- Add Item Tab -->
+            <section id="add-tab" class="tab-content card" style="display: none;">
+                <h2>Create New Auction</h2>
+                <p class="info">List your item for auction. Set your own terms and beneficiary address.</p>
+
+                <form id="create-item-form">
+                    <div class="form-group">
+                        <label for="item-name">What are you auctioning?</label>
+                        <input type="text" id="item-name" required placeholder="e.g., Vintage Rolex Watch">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="item-description">Description:</label>
+                        <textarea id="item-description" required placeholder="Describe your item in detail..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="item-beneficiary">Who receives the winning deposit?</label>
+                        <input type="text" id="item-beneficiary" required placeholder="0x...">
+                        <button type="button" id="use-my-address" class="secondary small">Use My Address</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="item-min-deposit">Minimum Deposit (ETH):</label>
+                        <input type="number" id="item-min-deposit" step="0.001" min="0.001" value="0.01" required>
+                        <small>Bidders must deposit at least this amount to participate</small>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="item-commit-duration">Bidding Period (seconds):</label>
+                            <input type="number" id="item-commit-duration" min="10" value="1800" required>
+                            <small>Default: 1800 (30 min), Test: 10</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="item-reveal-duration">Reveal Period (seconds):</label>
+                            <input type="number" id="item-reveal-duration" min="10" value="1800" required>
+                            <small>Default: 1800 (30 min), Test: 10</small>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="primary large">🚀 Create Auction</button>
+                </form>
+
+                <div class="admin-section" style="margin-top: 40px;">
+                    <h3>Finalize Your Auction</h3>
+                    <p class="info">After the reveal period ends, finalize to declare the winner.</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="finalize-item-id">Item ID:</label>
+                            <input type="number" id="finalize-item-id" min="1" required placeholder="Enter item ID">
+                        </div>
+                        <button id="finalize-btn" class="primary">🏆 Declare Winner</button>
                     </div>
                 </div>
-
-                <div id="revealed-bids" style="display: none;">
-                    <h3>Revealed Bids</h3>
-                    <div id="reveals-list">
-                        <p class="info">No bids revealed yet.</p>
-                    </div>
-                </div>
-
-                <button id="refresh-dashboard">Refresh Dashboard</button>
             </section>
         </main>
 
         <footer>
-            <p>Zero-Knowledge Sealed-Bid Auction | Powered by Noir</p>
+            <p>Zero-Knowledge Multi-Item Auction | Powered by Noir</p>
         </footer>
     </div>
 

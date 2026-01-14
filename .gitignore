@@ -12,7 +12,6 @@ typechain-types/
 # Compiled circuit artifacts
 circuits/bid_proof/target/
 circuits/bid_proof/proofs/
-contracts/UltraVerifier.sol
 
 # Environment variables
 .env
@@ -20,15 +19,12 @@ contracts/UltraVerifier.sol
 .env.production
 
 # Deployment info
-deployments/*.json
-!deployments/.gitkeep
-
-# Frontend compiled circuit
-frontend-simple/circuit/
+deployments/
 
 # IDE
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
@@ -36,6 +32,7 @@ frontend-simple/circuit/
 # OS
 .DS_Store
 Thumbs.db
+nul
 
 # Logs
 *.log
@@ -44,10 +41,7 @@ logs/
 # Testing
 coverage/
 coverage.json
-
-# Hardhat
-cache/
-artifacts/
+test/
 
 # Misc
 *.tgz
