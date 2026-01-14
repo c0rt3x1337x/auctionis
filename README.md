@@ -2,6 +2,12 @@
 
 A decentralized multi-item sealed-bid auction platform using Zero-Knowledge Proofs (ZKP) built with Noir and Solidity.
 
+
+
+
+https://github.com/user-attachments/assets/53cad496-682c-42a7-8ca5-445d99d1202f
+
+
 ## Features
 
 - **Multi-Item Auctions**: Create unlimited auction items
